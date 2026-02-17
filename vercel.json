@@ -3,6 +3,10 @@
     { "src": "api/index.ts", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "api/index.ts" }
+    {
+      "src": "/(.*)",
+      "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      "dest": "api/index.ts"
+    }
   ]
 }
