@@ -15,9 +15,13 @@ import motorCertificateRoutes from "./routes/motorCertificateRoutes";
 import generalPowerOfAttorneyRoutes from "./routes/generalPowerOfAttorneyRoutes";
 import registeredContractRoutes from "./routes/registeredContractRoutes";
 
-connectDB();
-
 const app = express();
+
+// Ensure DB is connected on every serverless invocation
+app.use(async (_req, _res, next) => {
+  await connectDB();
+  next();
+});
 
 app.use(
   cors({
@@ -26,7 +30,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-app.options("*", cors());
+app.options(/.*/, cors());
 app.use(express.json());
 
 app.get("/", (_req, res) => {
