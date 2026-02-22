@@ -42,6 +42,7 @@ const ctrl = __importStar(require("../controllers/saleController"));
 const router = (0, express_1.Router)();
 router.use(auth_1.default);
 router.get("/", ctrl.getAll);
+router.get("/:id", ctrl.getOne);
 router.post("/", ctrl.create);
 router.delete("/:id", ctrl.remove);
 exports.default = router;

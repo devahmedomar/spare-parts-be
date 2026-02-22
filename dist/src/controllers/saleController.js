@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.remove = exports.create = exports.getAll = void 0;
+exports.remove = exports.create = exports.getOne = exports.getAll = void 0;
 const models_1 = require("../models");
 const getAll = async (_req, res) => {
     const sales = await models_1.Sale.find()
@@ -9,6 +9,15 @@ const getAll = async (_req, res) => {
     res.json(sales);
 };
 exports.getAll = getAll;
+const getOne = async (req, res) => {
+    const sale = await models_1.Sale.findById(req.params.id).populate("sparePartId", "name");
+    if (!sale) {
+        res.status(404).json({ message: "Sale not found" });
+        return;
+    }
+    res.json(sale);
+};
+exports.getOne = getOne;
 const create = async (req, res) => {
     const { sparePartId, quantitySold } = req.body;
     const part = await models_1.SparePart.findById(sparePartId);

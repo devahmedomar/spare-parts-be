@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.remove = exports.update = exports.create = exports.getOne = exports.getAll = void 0;
+exports.remove = exports.update = exports.create = exports.getOne = exports.getShortages = exports.getAll = void 0;
 const models_1 = require("../models");
 const getAll = async (req, res) => {
     const { search } = req.query;
@@ -11,6 +11,11 @@ const getAll = async (req, res) => {
     res.json(parts);
 };
 exports.getAll = getAll;
+const getShortages = async (_req, res) => {
+    const parts = await models_1.SparePart.find({ quantity: 0 }).sort({ name: 1 });
+    res.json(parts);
+};
+exports.getShortages = getShortages;
 const getOne = async (req, res) => {
     const part = await models_1.SparePart.findById(req.params.id);
     if (!part) {

@@ -2,16 +2,17 @@ import { Request, Response } from "express";
 import { SparePart } from "../models";
 
 export const getAll = async (req: Request, res: Response): Promise<void> => {
-  const { search } = req.query;
-  const filter = search
-    ? { name: { $regex: search as string, $options: "i" } }
-    : {};
-  const parts = await SparePart.find(filter);
-  res.json(parts);
-};
+  const { search, shortages } = req.query;
 
-export const getShortages = async (_req: Request, res: Response): Promise<void> => {
-  const parts = await SparePart.find({ quantity: 0 }).sort({ name: 1 });
+  let filter: Record<string, unknown> = {};
+
+  if (shortages === "true") {
+    filter.quantity = 0;
+  } else if (search) {
+    filter.name = { $regex: search as string, $options: "i" };
+  }
+
+  const parts = await SparePart.find(filter).sort({ name: 1 });
   res.json(parts);
 };
 
