@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.remove = exports.create = exports.getAll = void 0;
-const mongoose_1 = __importDefault(require("mongoose"));
 const models_1 = require("../models");
 const getAll = async (_req, res) => {
     const sales = await models_1.Sale.find()
@@ -26,21 +22,9 @@ const create = async (req, res) => {
     }
     const unitPrice = part.price;
     const totalPrice = unitPrice * quantitySold;
-    const session = await mongoose_1.default.startSession();
-    session.startTransaction();
-    try {
-        const [sale] = await models_1.Sale.create([{ sparePartId, quantitySold, unitPrice, totalPrice }], { session });
-        await models_1.SparePart.findByIdAndUpdate(sparePartId, { $inc: { quantity: -quantitySold } }, { session });
-        await session.commitTransaction();
-        res.status(201).json(sale);
-    }
-    catch {
-        await session.abortTransaction();
-        res.status(500).json({ message: "Sale failed" });
-    }
-    finally {
-        session.endSession();
-    }
+    const sale = await models_1.Sale.create({ sparePartId, quantitySold, unitPrice, totalPrice });
+    await models_1.SparePart.findByIdAndUpdate(sparePartId, { $inc: { quantity: -quantitySold } });
+    res.status(201).json(sale);
 };
 exports.create = create;
 const remove = async (req, res) => {
@@ -49,21 +33,9 @@ const remove = async (req, res) => {
         res.status(404).json({ message: "Sale not found" });
         return;
     }
-    const session = await mongoose_1.default.startSession();
-    session.startTransaction();
-    try {
-        await models_1.SparePart.findByIdAndUpdate(sale.sparePartId, { $inc: { quantity: sale.quantitySold } }, { session });
-        await models_1.Sale.findByIdAndDelete(sale._id, { session });
-        await session.commitTransaction();
-        res.json({ message: "Sale deleted, stock restored" });
-    }
-    catch {
-        await session.abortTransaction();
-        res.status(500).json({ message: "Delete failed" });
-    }
-    finally {
-        session.endSession();
-    }
+    await models_1.SparePart.findByIdAndUpdate(sale.sparePartId, { $inc: { quantity: sale.quantitySold } });
+    await models_1.Sale.findByIdAndDelete(sale._id);
+    res.json({ message: "Sale deleted, stock restored" });
 };
 exports.remove = remove;
 //# sourceMappingURL=saleController.js.map
