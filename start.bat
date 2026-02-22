@@ -1,28 +1,21 @@
 @echo off
-title برنامج ادارة قطع الغيار
+title برنامج ادارة قطع الغيار - لا تغلق هذه النافذة
 color 0A
+
+cd /d "%~dp0"
+
 echo ==========================================
 echo    برنامج ادارة قطع الغيار
-echo ==========================================
-echo.
-
-pm2 describe spare-parts >nul 2>&1
-if %errorlevel% == 0 (
-    echo البرنامج يعمل بالفعل في الخلفية
-    echo.
-    echo حالة البرنامج:
-    pm2 status spare-parts
-) else (
-    echo جاري تشغيل البرنامج في الخلفية...
-    pm2 start dist/src/index.js --name spare-parts
-    pm2 save
-    echo.
-    echo تم تشغيل البرنامج بنجاح في الخلفية
-)
-
-echo.
 echo    البرنامج يعمل على: http://localhost:5000
-echo    يمكنك اغلاق هذه النافذة بامان
+echo    تصغير النافذة فقط - لا تغلقها
 echo ==========================================
 echo.
-pause
+
+npm run dev
+if %errorlevel% neq 0 (
+    color 0C
+    echo.
+    echo [خطأ] فشل تشغيل البرنامج.
+    echo تأكد من تشغيل install.bat اولا
+    pause
+)
