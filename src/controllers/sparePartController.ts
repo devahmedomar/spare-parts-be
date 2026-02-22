@@ -10,6 +10,11 @@ export const getAll = async (req: Request, res: Response): Promise<void> => {
   res.json(parts);
 };
 
+export const getShortages = async (_req: Request, res: Response): Promise<void> => {
+  const parts = await SparePart.find({ quantity: 0 }).sort({ name: 1 });
+  res.json(parts);
+};
+
 export const getOne = async (req: Request, res: Response): Promise<void> => {
   const part = await SparePart.findById(req.params.id as string);
   if (!part) {
