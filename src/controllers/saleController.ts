@@ -8,6 +8,15 @@ export const getAll = async (_req: Request, res: Response): Promise<void> => {
   res.json(sales);
 };
 
+export const getOne = async (req: Request, res: Response): Promise<void> => {
+  const sale = await Sale.findById(req.params.id as string).populate("sparePartId", "name");
+  if (!sale) {
+    res.status(404).json({ message: "Sale not found" });
+    return;
+  }
+  res.json(sale);
+};
+
 export const create = async (req: Request, res: Response): Promise<void> => {
   const { sparePartId, quantitySold } = req.body;
 
