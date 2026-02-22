@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { GeneralPowerOfAttorney } from "../models";
-import { uploadToCloudinary, deleteFromCloudinary } from "../middleware/upload";
+import { getImageUrl, deleteLocalFile } from "../middleware/upload";
 
 export const getAll = async (_req: Request, res: Response): Promise<void> => {
   const docs = await GeneralPowerOfAttorney.find().sort({ createdAt: -1 });
@@ -23,16 +23,11 @@ export const create = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { ownerName, nationalId } = req.body;
-  const { url, publicId } = await uploadToCloudinary(
-    req.file.buffer,
-    "general_power_of_attorneys"
-  );
-
   const doc = await GeneralPowerOfAttorney.create({
     ownerName,
     nationalId: nationalId ?? null,
-    imageUrl: url,
-    imagePublicId: publicId,
+    imageUrl: getImageUrl(req.file.filename),
+    imagePublicId: req.file.filename,
   });
   res.status(201).json(doc);
 };
@@ -49,13 +44,9 @@ export const update = async (req: Request, res: Response): Promise<void> => {
   doc.nationalId = nationalId !== undefined ? nationalId : doc.nationalId;
 
   if (req.file) {
-    await deleteFromCloudinary(doc.imagePublicId);
-    const { url, publicId } = await uploadToCloudinary(
-      req.file.buffer,
-      "general_power_of_attorneys"
-    );
-    doc.imageUrl = url;
-    doc.imagePublicId = publicId;
+    deleteLocalFile(doc.imagePublicId);
+    doc.imageUrl = getImageUrl(req.file.filename);
+    doc.imagePublicId = req.file.filename;
   }
 
   await doc.save();
@@ -69,7 +60,7 @@ export const remove = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  await deleteFromCloudinary(doc.imagePublicId);
+  deleteLocalFile(doc.imagePublicId);
   await doc.deleteOne();
   res.json({ message: "Deleted" });
 };

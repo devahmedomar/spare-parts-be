@@ -1,0 +1,1 @@
+{"version":3,"file":"MotorCertificate.d.ts","sourceRoot":"","sources":["../../../src/models/MotorCertificate.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,EAAE,EAAE,QAAQ,EAAE,MAAM,UAAU,CAAC;AAE9C,MAAM,WAAW,iBAAkB,SAAQ,QAAQ;IACjD,WAAW,EAAE,MAAM,CAAC;IACpB,SAAS,EAAE,MAAM,CAAC;IAClB,OAAO,EAAE,MAAM,CAAC;IAChB,QAAQ,EAAE,MAAM,CAAC;IACjB,aAAa,EAAE,MAAM,CAAC;CACvB;;;;;;;;AAaD,wBAA6F"}

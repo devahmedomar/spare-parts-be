@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { RegisteredContract } from "../models";
-import { uploadToCloudinary, deleteFromCloudinary } from "../middleware/upload";
+import { getImageUrl, deleteLocalFile } from "../middleware/upload";
 
 export const getAll = async (_req: Request, res: Response): Promise<void> => {
   const contracts = await RegisteredContract.find().sort({ createdAt: -1 });
@@ -23,16 +23,11 @@ export const create = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { contractNumber, ownerName } = req.body;
-  const { url, publicId } = await uploadToCloudinary(
-    req.file.buffer,
-    "registered_contracts"
-  );
-
   const contract = await RegisteredContract.create({
     contractNumber,
     ownerName,
-    imageUrl: url,
-    imagePublicId: publicId,
+    imageUrl: getImageUrl(req.file.filename),
+    imagePublicId: req.file.filename,
   });
   res.status(201).json(contract);
 };
@@ -49,13 +44,9 @@ export const update = async (req: Request, res: Response): Promise<void> => {
   contract.ownerName = ownerName ?? contract.ownerName;
 
   if (req.file) {
-    await deleteFromCloudinary(contract.imagePublicId);
-    const { url, publicId } = await uploadToCloudinary(
-      req.file.buffer,
-      "registered_contracts"
-    );
-    contract.imageUrl = url;
-    contract.imagePublicId = publicId;
+    deleteLocalFile(contract.imagePublicId);
+    contract.imageUrl = getImageUrl(req.file.filename);
+    contract.imagePublicId = req.file.filename;
   }
 
   await contract.save();
@@ -69,7 +60,7 @@ export const remove = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  await deleteFromCloudinary(contract.imagePublicId);
+  deleteLocalFile(contract.imagePublicId);
   await contract.deleteOne();
   res.json({ message: "Deleted" });
 };

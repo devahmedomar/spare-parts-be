@@ -1,7 +1,24 @@
 import multer from "multer";
-import { v2 as cloudinary } from "cloudinary";
+import path from "path";
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
-const storage = multer.memoryStorage();
+const UPLOADS_DIR = path.join(__dirname, "../../uploads");
+
+// Ensure uploads directory exists
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (_req, _file, cb) => {
+    cb(null, UPLOADS_DIR);
+  },
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    cb(null, `${uuidv4()}${ext}`);
+  },
+});
 
 const upload = multer({
   storage,
@@ -15,24 +32,15 @@ const upload = multer({
   },
 });
 
-export const uploadToCloudinary = (
-  buffer: Buffer,
-  folder: string
-): Promise<{ url: string; publicId: string }> => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: "image" },
-      (error, result) => {
-        if (error || !result) return reject(error);
-        resolve({ url: result.secure_url, publicId: result.public_id });
-      }
-    );
-    stream.end(buffer);
-  });
+export const getImageUrl = (filename: string): string => {
+  return `/uploads/${filename}`;
 };
 
-export const deleteFromCloudinary = (publicId: string) => {
-  return cloudinary.uploader.destroy(publicId);
+export const deleteLocalFile = (filename: string): void => {
+  const filePath = path.join(UPLOADS_DIR, filename);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
 };
 
 export default upload;

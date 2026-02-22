@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 
 dotenv.config();
 
-import "./config/cloudinary";
 import connectDB from "./config/database";
 
 import authRoutes from "./routes/authRoutes";
@@ -15,13 +15,9 @@ import motorCertificateRoutes from "./routes/motorCertificateRoutes";
 import generalPowerOfAttorneyRoutes from "./routes/generalPowerOfAttorneyRoutes";
 import registeredContractRoutes from "./routes/registeredContractRoutes";
 
-const app = express();
+connectDB();
 
-// Ensure DB is connected on every serverless invocation
-app.use(async (_req, _res, next) => {
-  await connectDB();
-  next();
-});
+const app = express();
 
 app.use(
   cors({
@@ -32,6 +28,9 @@ app.use(
 );
 app.options(/.*/, cors());
 app.use(express.json());
+
+// Serve uploaded images statically
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 app.get("/", (_req, res) => {
   res.send("API is running");

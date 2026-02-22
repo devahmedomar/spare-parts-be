@@ -1,0 +1,1 @@
+{"version":3,"file":"Sale.d.ts","sourceRoot":"","sources":["../../../src/models/Sale.ts"],"names":[],"mappings":"AAAA,OAAO,QAAQ,EAAE,EAAE,QAAQ,EAAE,KAAK,EAAE,MAAM,UAAU,CAAC;AAErD,MAAM,WAAW,KAAM,SAAQ,QAAQ;IACrC,WAAW,EAAE,KAAK,CAAC,QAAQ,CAAC;IAC5B,YAAY,EAAE,MAAM,CAAC;IACrB,SAAS,EAAE,MAAM,CAAC;IAClB,UAAU,EAAE,MAAM,CAAC;CACpB;;;;;;;;AAYD,wBAAyD"}

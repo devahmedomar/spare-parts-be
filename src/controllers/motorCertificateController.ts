@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { MotorCertificate } from "../models";
-import { uploadToCloudinary, deleteFromCloudinary } from "../middleware/upload";
+import { getImageUrl, deleteLocalFile } from "../middleware/upload";
 
 export const getAll = async (_req: Request, res: Response): Promise<void> => {
   const certs = await MotorCertificate.find().sort({ createdAt: -1 });
@@ -23,17 +23,12 @@ export const create = async (req: Request, res: Response): Promise<void> => {
   }
 
   const { motorNumber, ownerName, address } = req.body;
-  const { url, publicId } = await uploadToCloudinary(
-    req.file.buffer,
-    "motor_certificates"
-  );
-
   const cert = await MotorCertificate.create({
     motorNumber,
     ownerName,
     address,
-    imageUrl: url,
-    imagePublicId: publicId,
+    imageUrl: getImageUrl(req.file.filename),
+    imagePublicId: req.file.filename,
   });
   res.status(201).json(cert);
 };
@@ -51,13 +46,9 @@ export const update = async (req: Request, res: Response): Promise<void> => {
   cert.address = address ?? cert.address;
 
   if (req.file) {
-    await deleteFromCloudinary(cert.imagePublicId);
-    const { url, publicId } = await uploadToCloudinary(
-      req.file.buffer,
-      "motor_certificates"
-    );
-    cert.imageUrl = url;
-    cert.imagePublicId = publicId;
+    deleteLocalFile(cert.imagePublicId);
+    cert.imageUrl = getImageUrl(req.file.filename);
+    cert.imagePublicId = req.file.filename;
   }
 
   await cert.save();
@@ -71,7 +62,7 @@ export const remove = async (req: Request, res: Response): Promise<void> => {
     return;
   }
 
-  await deleteFromCloudinary(cert.imagePublicId);
+  deleteLocalFile(cert.imagePublicId);
   await cert.deleteOne();
   res.json({ message: "Deleted" });
 };
